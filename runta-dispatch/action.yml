@@ -1,0 +1,48 @@
+name: Runta dispatch
+description: Dispatch labeled or commanded GitHub issues to Pi in a Runta runtime
+inputs:
+  runtime:
+    required: true
+  model:
+    required: true
+  base_url:
+    required: true
+  provider_secret:
+    description: Runta tenant secret name containing the model-provider key
+    required: true
+  provider:
+    default: runta
+  label:
+    default: runta
+  command:
+    default: /runta
+  cpus:
+    default: "2"
+  memory_mib:
+    default: "4096"
+  timeout_minutes:
+    default: "90"
+  gh_token:
+    description: Ephemeral GitHub token uploaded to Runta and exposed only via egress stubs
+    required: true
+  runta_gh_token_name:
+    description: Optional Runta secret name override
+    required: false
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INPUT_RUNTIME: ${{ inputs.runtime }}
+        INPUT_MODEL: ${{ inputs.model }}
+        INPUT_BASE_URL: ${{ inputs.base_url }}
+        INPUT_PROVIDER_SECRET: ${{ inputs.provider_secret }}
+        INPUT_PROVIDER: ${{ inputs.provider }}
+        INPUT_LABEL: ${{ inputs.label }}
+        INPUT_COMMAND: ${{ inputs.command }}
+        INPUT_CPUS: ${{ inputs.cpus }}
+        INPUT_MEMORY_MIB: ${{ inputs.memory_mib }}
+        INPUT_TIMEOUT_MINUTES: ${{ inputs.timeout_minutes }}
+        INPUT_RUNTA_GH_TOKEN_NAME: ${{ inputs.runta_gh_token_name }}
+        GITHUB_TOKEN: ${{ inputs.gh_token }}
+      run: python3 "$GITHUB_ACTION_PATH/dispatch.py"
